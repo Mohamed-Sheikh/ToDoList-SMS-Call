@@ -1,0 +1,55 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: "AWS::Serverless-2016-10-31"
+Description: ToDoList Reminder, that calls and send messages based on overdue tasks
+Resources:
+  Lambda:
+    Type: "AWS::Serverless::Function"
+    Properties:
+      FunctionName: ToDoListContacter
+      Handler: index.handler
+      Runtime: nodejs12.x
+      Description: ""
+      MemorySize: !Ref LambdaMemorySize
+      Timeout: !Ref LambdaTimeout
+      Role: "arn:aws:iam::711934194654:role/service-role/TweetSender-role-1pauzazq"
+      InlineCode: exports.handler = function(event,context){}
+      Events:
+        Schedule1:
+          Type: Schedule
+          Properties:
+            Schedule: cron(0 0/3 ? * * *)
+      Environment:
+        Variables:
+          ConsumerKey: !Ref ConsumerKey
+          ConsumerSecret: !Ref ConsumerSecret
+          AccessToken: !Ref AccessToken
+          TokenSecret: !Ref TokenSecret
+          region: !Ref region
+          TableName: !Ref TableName
+Parameters:
+  ConsumerKey:
+    Type: String
+    Description: Twitter Consumer Key
+  ConsumerSecret:
+    Type: String
+    Description: Twitter Consumer Secret
+  AccessToken:
+    Type: String
+    Description: Twitter Access Token
+  TokenSecret:
+    Type: String
+    Description: Twitter Token Secret
+  region:
+    Type: String
+    Description: AWS Region
+  TableName:
+    Type: String
+    Description: DynamoDB Table
+  LambdaTimeout:
+    Default: "360"
+    Type: Number
+    Description: The function execution time (in seconds) after which Lambda terminates the function.
+  LambdaMemorySize:
+    Default: "128"
+    Type: Number
+    Description: The function execution time (in seconds) after which Lambda terminates the function.
