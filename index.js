@@ -130,7 +130,9 @@ async function handler() {
       });
       console.log(tasksToDo);
       if (tasksToDo.length > 1) {
+        console.log("Making a call");
         await makeCall(tasksToDo);
+        console.log("successfully called");
       }
     } catch (error) {
       console.log(error);
