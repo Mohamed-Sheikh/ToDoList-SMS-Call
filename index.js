@@ -3,7 +3,7 @@ const fs = require("fs");
 const twilio = require("twilio");
 const moment = require("moment");
 
-async function handler() {
+exports.handler = async (event) => {
   var client;
   var projectIDS = [];
   var overdueProjects = [];
@@ -160,6 +160,6 @@ async function handler() {
   if ((await overdue.length) > 0) {
     await determineNextStep();
   }
-}
+};
 
-handler();
+// handler();
