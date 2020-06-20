@@ -1,0 +1,17 @@
+{
+  "name": "todolist",
+  "version": "1.0.0",
+  "description": "A tool that sends SMS messages when todo list tasks are overdue.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Mohamed Sheikh",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.19.2",
+    "fs": "0.0.1-security",
+    "moment": "^2.27.0",
+    "twilio": "^3.46.0"
+  }
+}
