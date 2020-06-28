@@ -7,6 +7,7 @@ exports.handler = async (event) => {
   var client;
   var projectIDS = [];
   var overdueProjects = [];
+  var currentlyDue = [];
   async function getEnvironment() {
     if (!process.env.AWS_LAMBDA_FUNCTION_VERSION) {
       let result = (resolve, reject) => {
@@ -84,36 +85,42 @@ exports.handler = async (event) => {
     return new Promise(result);
   }
 
-  async function getAllOverdueTasks() {
+  async function getAllTasks() {
     const url = "https://api.todoist.com/rest/v1/tasks";
 
-    try {
-      await axios.all(
-        projectIDS.map(async (i) => {
-          await axios({
-            url: url,
-            params: { project_id: i },
-            headers: {
-              Authorization: `Bearer ${process.env.token}`,
-            },
-          }).then(async (response) => {
-            response.data.map(async (i) => {
-              if (
-                i.due &&
-                moment().subtract(1, "day").isAfter(moment(i.due.date))
-              ) {
-                await overdueProjects.push(i);
-              }
+    return new Promise(async (resolve, reject) => {
+      try {
+        await axios.all(
+          projectIDS.map(async (i) => {
+            await axios({
+              url: url,
+              params: { project_id: i },
+              headers: {
+                Authorization: `Bearer ${process.env.token}`,
+              },
+            }).then(async (response) => {
+              response.data.map(async (i) => {
+                if (
+                  i.due &&
+                  moment().subtract(1, "day").isAfter(moment(i.due.date))
+                ) {
+                  await overdueProjects.push(i);
+                } else if (i.due && moment().isSame(moment(i.due.date))) {
+                  await currentlyDue.push(i);
+                }
+              });
             });
-          });
-        })
-      );
-    } catch (error) {
-      console.log(error);
-    }
-    console.log("retrieved all overdue projects");
-    return overdueProjects;
+          })
+        );
+        console.log("retrieved all overdue projects");
+        resolve(overdueProjects);
+      } catch (error) {
+        console.log(error);
+        reject(error);
+      }
+    });
   }
+  // });
 
   async function determineNextStep() {
     var tasksToDo = "";
@@ -152,14 +159,42 @@ exports.handler = async (event) => {
       console.log(error);
     }
   }
+  async function sendTodaysTaks() {
+    console.log(1);
+    let status;
+    try {
+      console.log(2);
+      for (let i = 0; i < currentlyDue.length; i++) {
+        console.log("SENDING SMS");
+        console.log(3);
+        await sendSMS(currentlyDue[i]);
+        console.log(4);
+      }
+      status = "done";
+    } catch (error) {
+      console.log(6);
+      console.log(error);
+      status = "error";
+      console.log(7);
+    }
+    console.log(8);
+    return status;
+  }
 
   await getEnvironment();
   await initialiseTwilio();
   await getAllProjects();
-  let overdue = await getAllOverdueTasks();
+  let overdue = await getAllTasks();
+  console.log("BEFORE");
   if ((await overdue.length) > 0) {
+    console.log("IN OVERDUE");
     await determineNextStep();
+  } else {
+    console.log("IN ELSE");
+    await sendTodaysTaks();
+    console.log("JUMPER OVE IT");
   }
+  console.log("AFTER");
 };
 
 // handler();
