@@ -3,7 +3,7 @@ const fs = require("fs");
 const twilio = require("twilio");
 const moment = require("moment");
 
-exports.handler = async (event) => {
+handler = async (event) => {
   var client;
   var projectIDS = [];
   var overdueProjects = [];
@@ -49,7 +49,6 @@ exports.handler = async (event) => {
             from: process.env.twilioPhone, // From a valid Twilio number
           })
           .then((message) => {
-            console.log(message.sid);
             console.log("sent message");
             resolve(message.sid);
           });
@@ -125,12 +124,13 @@ exports.handler = async (event) => {
   async function determineNextStep() {
     var tasksToDo = "";
     try {
-      overdueProjects.map(async (element, index) => {
+      await overdueProjects.map(async (element, index) => {
         if (element.due) {
           if (moment().diff(moment(element.due.date), "day") > 2) {
             tasksToDo +=
               " Task " + (index + 1).toString() + " " + element.content;
           } else {
+            console.log("sending SMS");
             await sendSMS(element);
           }
         }
@@ -147,19 +147,22 @@ exports.handler = async (event) => {
   }
 
   async function makeCall(tasks) {
-    try {
-      client.calls
-        .create({
+    return new Promise(async (resolve, reject) => {
+      try {
+        let call = await client.calls.create({
           twiml: `<Response><Say>${tasks}</Say></Response>`,
           to: process.env.MyNumber,
           from: process.env.twilioPhone,
-        })
-        .then((call) => console.log(call.sid));
-    } catch (error) {
-      console.log(error);
-    }
+        });
+        resolve(call.sid);
+      } catch (error) {
+        console.log(error);
+        reject(error);
+      }
+    });
   }
   async function sendTodaysTaks() {
+    console.log("SENDING TODAYS TASKS");
     console.log(1);
     let status;
     try {
@@ -191,10 +194,10 @@ exports.handler = async (event) => {
     await determineNextStep();
   } else {
     console.log("IN ELSE");
-    await sendTodaysTaks();
+    sendTodaysTaks();
     console.log("JUMPER OVE IT");
   }
   console.log("AFTER");
 };
 
-// handler();
+handler();
