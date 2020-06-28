@@ -1,50 +1,46 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: "AWS::Serverless-2016-10-31"
-Description: ToDoList Reminder, that calls and send messages based on overdue tasks
+Description: Program that sends you messages or calls you based on overdue tasks in your todo list
 Resources:
   Lambda:
     Type: "AWS::Serverless::Function"
     Properties:
-      FunctionName: ToDoListContacter
+      FunctionName: TodoList-Contacter
       Handler: index.handler
       Runtime: nodejs12.x
       Description: ""
       MemorySize: !Ref LambdaMemorySize
       Timeout: !Ref LambdaTimeout
-      Role: "arn:aws:iam::711934194654:role/service-role/TweetSender-role-1pauzazq"
+      Role: "arn:aws:iam::711934194654:role/service-role/ToDoListContacter-role-m1jyutcb"
       InlineCode: exports.handler = function(event,context){}
       Events:
         Schedule1:
           Type: Schedule
           Properties:
-            Schedule: cron(0 0/3 ? * * *)
+            Schedule: cron(0 10 * * ? *)
       Environment:
         Variables:
-          ConsumerKey: !Ref ConsumerKey
-          ConsumerSecret: !Ref ConsumerSecret
-          AccessToken: !Ref AccessToken
-          TokenSecret: !Ref TokenSecret
-          region: !Ref region
-          TableName: !Ref TableName
+          accountSid: !Ref accountSid
+          authToken: !Ref authToken
+          token: !Ref token
+          twilioPhone: !Ref twilioPhone
+          MyNumber: !Ref MyNumber
 Parameters:
-  ConsumerKey:
+  accountSid:
     Type: String
-    Description: Twitter Consumer Key
-  ConsumerSecret:
+    Description: Twilio accountSid
+  authToken:
     Type: String
-    Description: Twitter Consumer Secret
-  AccessToken:
+    Description: Twilio authToken
+  token:
     Type: String
-    Description: Twitter Access Token
-  TokenSecret:
+    Description: Todoist Token
+  twilioPhone:
     Type: String
-    Description: Twitter Token Secret
-  region:
+    Description: Twilio phone number
+  MyNumber:
     Type: String
-    Description: AWS Region
-  TableName:
-    Type: String
-    Description: DynamoDB Table
+    Description: My mobile number
   LambdaTimeout:
     Default: "360"
     Type: Number
