@@ -13,5 +13,8 @@
     "fs": "0.0.1-security",
     "moment": "^2.27.0",
     "twilio": "^3.46.0"
+  },
+  "devDependencies": {
+    "eslint": "^7.11.0"
   }
 }
