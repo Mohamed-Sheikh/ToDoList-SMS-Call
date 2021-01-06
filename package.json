@@ -9,7 +9,7 @@
   "author": "Mohamed Sheikh",
   "license": "ISC",
   "dependencies": {
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "fs": "0.0.1-security",
     "moment": "^2.27.0",
     "twilio": "^3.46.0"
